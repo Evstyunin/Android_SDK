@@ -4,16 +4,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
+import ru.usedesk.chat_gui.R;
+import ru.usedesk.chat_sdk.external.entity.UsedeskFileInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.usedesk.chat_gui.R;
-import ru.usedesk.chat_gui.internal.utils.GlideApp;
-import ru.usedesk.chat_sdk.external.entity.UsedeskFileInfo;
 
 
 public class AttachedFilesAdapter extends RecyclerView.Adapter<AttachedFilesAdapter.ViewHolder> {
@@ -65,7 +63,7 @@ public class AttachedFilesAdapter extends RecyclerView.Adapter<AttachedFilesAdap
         }
 
         private void bind(@NonNull UsedeskFileInfo usedeskFileInfo) {
-            GlideApp.with(imageViewPreview)
+            Glide.with(imageViewPreview)
                     .load(usedeskFileInfo.getUri())
                     .centerCrop()
                     .error(R.drawable.ic_document_black)
