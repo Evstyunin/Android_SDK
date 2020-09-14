@@ -9,18 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModelProviders;
-
+import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-
-import java.util.List;
-import java.util.Set;
-
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 import ru.usedesk.chat_gui.R;
@@ -37,6 +31,9 @@ import ru.usedesk.chat_sdk.external.entity.UsedeskFileInfo;
 import ru.usedesk.chat_sdk.external.entity.UsedeskMessage;
 import ru.usedesk.common_gui.external.UsedeskViewCustomizer;
 import ru.usedesk.common_sdk.external.entity.exceptions.UsedeskException;
+
+import java.util.List;
+import java.util.Set;
 
 @RuntimePermissions
 public class UsedeskChatFragment extends Fragment {
@@ -60,18 +57,15 @@ public class UsedeskChatFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         filePicker = new FilePicker();
+        viewModel = new ViewModelProvider(this, new ChatViewModelFactory(requireContext())).get(ChatViewModel.class);
+        viewModel.init(requireContext(), null);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = UsedeskViewCustomizer.getInstance()
                 .createView(inflater, R.layout.usedesk_fragment_chat, container, false, R.style.Usedesk_Theme_Chat);
-
-        viewModel = ViewModelProviders.of(this, new ChatViewModelFactory(container.getContext()))
-                .get(ChatViewModel.class);
-
         initUi(view);
         renderData();
         observeData(getViewLifecycleOwner());

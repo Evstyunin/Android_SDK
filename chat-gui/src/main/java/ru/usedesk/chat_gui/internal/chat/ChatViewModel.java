@@ -1,15 +1,11 @@
 package ru.usedesk.chat_gui.internal.chat;
 
+import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -19,29 +15,48 @@ import io.reactivex.schedulers.Schedulers;
 import ru.usedesk.chat_sdk.external.IUsedeskChat;
 import ru.usedesk.chat_sdk.external.UsedeskChatSdk;
 import ru.usedesk.chat_sdk.external.entity.UsedeskActionListenerRx;
+import ru.usedesk.chat_sdk.external.entity.UsedeskChatConfiguration;
 import ru.usedesk.chat_sdk.external.entity.UsedeskFeedback;
 import ru.usedesk.chat_sdk.external.entity.UsedeskFileInfo;
 import ru.usedesk.chat_sdk.external.entity.UsedeskMessage;
 import ru.usedesk.chat_sdk.external.entity.UsedeskOfflineForm;
 import ru.usedesk.common_sdk.external.entity.exceptions.UsedeskException;
 
-public class ChatViewModel extends ViewModel {
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-    private final IUsedeskChat usedeskChat;
+public class ChatViewModel extends ViewModel {
 
     private final CompositeDisposable disposables = new CompositeDisposable();
 
-    private final MutableLiveData<Set<Integer>> feedbacksLiveData = new MutableLiveData<>();
-    private final MutableLiveData<UsedeskException> exceptionLiveData = new MutableLiveData<>();
-    private final MutableLiveData<MessagePanelState> messagePanelStateLiveData = new MutableLiveData<>(MessagePanelState.MESSAGE_PANEL);
-    private final MutableLiveData<List<UsedeskMessage>> messagesLiveData = new MutableLiveData<>();
-    private final MutableLiveData<List<UsedeskFileInfo>> fileInfoListLiveData = new MutableLiveData<>();
-    private final MutableLiveData<String> messageLiveData = new MutableLiveData<>("");
-    private final MutableLiveData<String> nameLiveData = new MutableLiveData<>("");
-    private final MutableLiveData<String> emailLiveData = new MutableLiveData<>("");
+    private MutableLiveData<Set<Integer>> feedbacksLiveData;
+    private MutableLiveData<UsedeskException> exceptionLiveData;
+    private MutableLiveData<MessagePanelState> messagePanelStateLiveData;
+    private MutableLiveData<List<UsedeskMessage>> messagesLiveData;
+    private MutableLiveData<List<UsedeskFileInfo>> fileInfoListLiveData;
+    private MutableLiveData<String> messageLiveData;
+    private MutableLiveData<String> nameLiveData;
+    private MutableLiveData<String> emailLiveData;
 
-    ChatViewModel(@NonNull IUsedeskChat usedeskChat, @NonNull UsedeskActionListenerRx actionListenerRx) {
-        this.usedeskChat = usedeskChat;
+    private IUsedeskChat usedeskChat = null;
+
+    public void init(Context context, @Nullable UsedeskChatConfiguration usedeskChatConfiguration) {
+        if (usedeskChatConfiguration != null) {
+            UsedeskChatSdk.setConfiguration(usedeskChatConfiguration);
+        }
+        UsedeskActionListenerRx actionListenerRx = new UsedeskActionListenerRx();
+        usedeskChat = UsedeskChatSdk.init(context, actionListenerRx);
+
+        feedbacksLiveData = new MutableLiveData<>();
+        exceptionLiveData = new MutableLiveData<>();
+        messagePanelStateLiveData = new MutableLiveData<>(MessagePanelState.MESSAGE_PANEL);
+        messagesLiveData = new MutableLiveData<>();
+        fileInfoListLiveData = new MutableLiveData<>();
+        messageLiveData = new MutableLiveData<>("");
+        nameLiveData = new MutableLiveData<>("");
+        emailLiveData = new MutableLiveData<>("");
 
         clearFileInfoList();
 
@@ -62,6 +77,16 @@ public class ChatViewModel extends ViewModel {
                 }));
 
         feedbacksLiveData.setValue(new HashSet<>());
+    }
+
+    public void dispose() {
+        disposables.clear();
+        UsedeskChatSdk.release();
+    }
+
+    public void reinit(Context context, @Nullable UsedeskChatConfiguration usedeskChatConfiguration) {
+        dispose();
+        init(context, usedeskChatConfiguration);
     }
 
     void onMessageChanged(@NonNull String message) {
@@ -144,12 +169,7 @@ public class ChatViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-
-        if (!disposables.isDisposed()) {
-            disposables.dispose();
-        }
-
-        UsedeskChatSdk.release();
+        dispose();
     }
 
     @SuppressWarnings("ConstantConditions")
