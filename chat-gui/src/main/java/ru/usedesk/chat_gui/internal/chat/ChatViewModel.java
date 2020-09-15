@@ -42,7 +42,31 @@ public class ChatViewModel extends ViewModel {
 
     private IUsedeskChat usedeskChat = null;
 
+    private boolean initialized = false;
+
     public void init(Context context, @Nullable UsedeskChatConfiguration usedeskChatConfiguration) {
+        if (!initialized) {
+            setupChat(context, usedeskChatConfiguration);
+            initialized = true;
+        }
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public void dispose() {
+        disposables.clear();
+        UsedeskChatSdk.release();
+    }
+
+    public void reinit(Context context, @Nullable UsedeskChatConfiguration usedeskChatConfiguration) {
+        dispose();
+        setupChat(context, usedeskChatConfiguration);
+        initialized = true;
+    }
+
+    private void setupChat(Context context, @Nullable UsedeskChatConfiguration usedeskChatConfiguration) {
         if (usedeskChatConfiguration != null) {
             UsedeskChatSdk.setConfiguration(usedeskChatConfiguration);
         }
@@ -77,16 +101,6 @@ public class ChatViewModel extends ViewModel {
                 }));
 
         feedbacksLiveData.setValue(new HashSet<>());
-    }
-
-    public void dispose() {
-        disposables.clear();
-        UsedeskChatSdk.release();
-    }
-
-    public void reinit(Context context, @Nullable UsedeskChatConfiguration usedeskChatConfiguration) {
-        dispose();
-        init(context, usedeskChatConfiguration);
     }
 
     void onMessageChanged(@NonNull String message) {
