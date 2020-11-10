@@ -1,15 +1,12 @@
 package ru.usedesk.chat_gui.internal.utils;
 
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
@@ -22,7 +19,7 @@ public class ImageUtils {
                                             @NonNull String pictureUrl, int errorResId) {
         imageImageView.setImageResource(errorResId);
         if (!TextUtils.isEmpty(pictureUrl)) {
-            Glide.with(imageImageView)
+            Glide.with(imageImageView.getContext())
                     .load(pictureUrl)
                     .error(errorResId)
                     .into(imageImageView);
@@ -33,20 +30,17 @@ public class ImageUtils {
                                             @NonNull ProgressBar progressBar,
                                             @NonNull String pictureUrl) {
         if (!TextUtils.isEmpty(pictureUrl)) {
-            Glide.with(imageImageView)
+            Glide.with(imageImageView.getContext())
                     .load(pictureUrl)
-                    .listener(new RequestListener<Drawable>() {
+                    .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model,
-                                                    Target<Drawable> target, boolean isFirstResource) {
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
                             hideProgress(progressBar);
                             return false;
                         }
 
                         @Override
-                        public boolean onResourceReady(Drawable resource, Object model,
-                                                       Target<Drawable> target, DataSource dataSource,
-                                                       boolean isFirstResource) {
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
                             hideProgress(progressBar);
                             return false;
                         }

@@ -4,17 +4,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
-import java.util.List;
-
 import ru.usedesk.common_gui.external.IUsedeskViewCustomizer;
 import ru.usedesk.knowledgebase_gui.R;
 import ru.usedesk.knowledgebase_sdk.external.entity.UsedeskSection;
+
+import java.util.List;
 
 public class SectionsAdapter extends RecyclerView.Adapter<SectionsAdapter.SectionViewHolder> {
 
@@ -64,7 +61,7 @@ public class SectionsAdapter extends RecyclerView.Adapter<SectionsAdapter.Sectio
 
         void bind(@NonNull final UsedeskSection section) {
             imageViewIcon.setImageBitmap(null);
-            Glide.with(imageViewIcon)
+            Glide.with(imageViewIcon.getContext())
                     .load(section.getImage())
                     .into(imageViewIcon);
             textViewTitle.setText(section.getTitle());

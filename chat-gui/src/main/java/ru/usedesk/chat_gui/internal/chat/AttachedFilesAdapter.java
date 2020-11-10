@@ -63,7 +63,7 @@ public class AttachedFilesAdapter extends RecyclerView.Adapter<AttachedFilesAdap
         }
 
         private void bind(@NonNull UsedeskFileInfo usedeskFileInfo) {
-            Glide.with(imageViewPreview)
+            Glide.with(imageViewPreview.getContext())
                     .load(usedeskFileInfo.getUri())
                     .centerCrop()
                     .error(R.drawable.ic_document_black)
